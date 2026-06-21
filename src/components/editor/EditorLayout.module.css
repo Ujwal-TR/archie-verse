@@ -9,8 +9,8 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #0a0a0f;
-  color: #f1f5f9;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .toolbarArea {
@@ -27,7 +27,7 @@
   grid-area: viewport;
   position: relative;
   overflow: hidden;
-  background: #0a0a0f;
+  background: var(--canvas-bg);
 }
 
 .rightArea {
@@ -38,4 +38,33 @@
 
 .statusArea {
   grid-area: status;
+  z-index: 100;
 }
+
+/* ── Responsive Editor Layout ── */
+@media (max-width: 1024px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .toolbarArea { flex: 0 0 auto; z-index: 100; position: sticky; top: 0; }
+  .viewportArea { flex: 0 0 55vh; min-height: 55vh; }
+  
+  .leftArea { 
+    flex: 0 0 auto; 
+    width: 100%; 
+    min-height: 350px; 
+    border-bottom: 1px solid rgba(255,255,255,0.1); 
+  }
+  
+  .rightArea { 
+    flex: 0 0 auto; 
+    width: 100%; 
+    min-height: 350px; 
+  }
+  
+  .statusArea { flex: 0 0 auto; }
+}
+
+

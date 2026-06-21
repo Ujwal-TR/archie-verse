@@ -5,7 +5,7 @@ import { ThreeEvent } from '@react-three/fiber';
 import { Edges } from '@react-three/drei';
 import type { SceneObject } from '@/store/editorStore';
 
-interface ColumnProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string) => void; }
+interface ColumnProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string, multiSelect?: boolean) => void; }
 
 function ColumnComponent({ obj, isSelected, onSelect }: ColumnProps) {
   const radius = obj.dimensions.radius ?? 0.2;
@@ -22,7 +22,7 @@ function ColumnComponent({ obj, isSelected, onSelect }: ColumnProps) {
   return (
     <group position={obj.position} rotation={obj.rotation.map((r) => (r * Math.PI) / 180) as [number, number, number]} scale={obj.scale}>
       <mesh geometry={geometry} material={material} position={[0, height / 2, 0]} castShadow receiveShadow
-        onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id); }}>
+        onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey); }}>
         {isSelected && <Edges threshold={15} color="#4f9eff" lineWidth={2} />}
       </mesh>
       {isSelected && (

@@ -1,0 +1,234 @@
+.posterContainer {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.poster {
+  width: 1920px;
+  height: 1080px;
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+  transform-origin: center;
+  /* Auto-scale to fit screen while maintaining 16:9 ratio */
+  transform: scale(min(calc(100vw / 1920), calc(100vh / 1080)));
+  box-shadow: 0 0 100px rgba(99, 102, 241, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.backgroundGrid {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+}
+
+.glow {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 1200px;
+  height: 1200px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%);
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  padding: 80px 100px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logoImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+}
+
+.brandName {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+}
+
+.website {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 16px 32px;
+  border-radius: 100px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.mainLayout {
+  display: flex;
+  flex: 1;
+  gap: 80px;
+}
+
+.leftColumn {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rightColumn {
+  flex: 1;
+  position: relative;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  box-shadow: inset 0 0 100px rgba(99, 102, 241, 0.05);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 110px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: #fff;
+  margin-bottom: 40px;
+  letter-spacing: -0.04em;
+}
+
+.titleGradient {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 36px;
+  color: #94a3b8;
+  line-height: 1.5;
+  max-width: 90%;
+  margin-bottom: 80px;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.featureIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+}
+
+.featureTitle {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.featureDesc {
+  font-size: 20px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.sceneContainer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.8;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.techStack {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.techText {
+  font-size: 24px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.techItems {
+  display: flex;
+  gap: 24px;
+}
+
+.techItem {
+  font-size: 24px;
+  color: #fff;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.qrCodePlaceholder {
+  width: 120px;
+  height: 120px;
+  background: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.qrIcon {
+  color: #000;
+}

@@ -7,15 +7,16 @@ import styles from './BottomStatusBar.module.css';
 
 export default function BottomStatusBar() {
   const objects = useEditorStore((s) => s.objects);
-  const selectedObjectId = useEditorStore((s) => s.selectedObjectId);
+  const selectedObjectIds = useEditorStore((s) => s.selectedObjectIds);
   const activeTool = useEditorStore((s) => s.activeTool);
   const snapEnabled = useEditorStore((s) => s.snapEnabled);
   const showGrid = useEditorStore((s) => s.showGrid);
   const fps = useEditorStore((s) => s.fps);
   const unitSystem = useEditorStore((s) => s.unitSystem);
 
-  const selectedObject = selectedObjectId
-    ? objects.find((o) => o.id === selectedObjectId)
+  const selectedCount = selectedObjectIds.length;
+  const firstSelectedObject = selectedCount === 1
+    ? objects.find((o) => o.id === selectedObjectIds[0])
     : undefined;
 
   const fpsClass = fps >= 50 ? styles.fpsGood : fps >= 30 ? styles.fpsWarn : styles.fpsBad;
@@ -25,11 +26,19 @@ export default function BottomStatusBar() {
       {/* Left */}
       <div className={styles.left}>
         <span>{objects.length} object{objects.length !== 1 ? 's' : ''}</span>
-        {selectedObject && (
+        {selectedCount === 1 && firstSelectedObject && (
           <>
             <span className={styles.divider} />
             <span className={styles.selectedInfo}>
-              {selectedObject.name} ({selectedObject.type})
+              {firstSelectedObject.name} ({firstSelectedObject.type})
+            </span>
+          </>
+        )}
+        {selectedCount > 1 && (
+          <>
+            <span className={styles.divider} />
+            <span className={styles.selectedInfo}>
+              {selectedCount} objects selected
             </span>
           </>
         )}

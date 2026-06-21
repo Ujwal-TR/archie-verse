@@ -9,7 +9,7 @@ import type { SceneObject } from '@/store/editorStore';
 interface WindowProps {
   obj: SceneObject;
   isSelected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, multiSelect?: boolean) => void;
 }
 
 const DEFAULTS = {
@@ -96,7 +96,7 @@ function WindowComponent({ obj, isSelected, onSelect }: WindowProps) {
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    onSelect(obj.id);
+    onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey);
   };
 
   if (!obj.visible) return null;

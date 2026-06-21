@@ -1,6 +1,6 @@
-# Archi-Verse 🏛️
+# Archie-Verse 🏛️
 
-**Archi-Verse** is a professional-grade, browser-based 3D architectural modeling tool. It allows users to design, visualize, and interact with architectural spaces in real-time, entirely within their browser—no downloads, plugins, or costs required.
+**Archie-Verse** is a professional-grade, browser-based 3D architectural modeling tool. It allows users to design, visualize, and interact with architectural spaces in real-time, entirely within their browser—no downloads, plugins, or costs required.
 
 ## ✨ Features
 
@@ -52,7 +52,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 | **Esc** | Deselect / Cancel |
 
 ## 🎨 Architecture & Design
-Archi-Verse embraces a minimalist, premium dark-mode aesthetic with smooth scroll-reveal animations, glowing interactive elements, and an overarching "glassmorphism" look for all editor panels. 
+Archie-Verse embraces a minimalist, premium dark-mode aesthetic with smooth scroll-reveal animations, glowing interactive elements, and an overarching "glassmorphism" look for all editor panels. 
 
 ---
 *Built with passion for modern web-based 3D modeling.*

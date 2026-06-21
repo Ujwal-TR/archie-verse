@@ -18,6 +18,7 @@ export function useKeyboardShortcuts() {
     setShowCommandPalette,
     setShowShortcutHelp,
     selectObject,
+    selectAll,
   } = useEditorStore();
 
   useEffect(() => {
@@ -34,6 +35,13 @@ export function useKeyboardShortcuts() {
       }
 
       const ctrl = e.ctrlKey || e.metaKey;
+
+      // Ctrl+A: Select All
+      if (ctrl && e.key === 'a') {
+        e.preventDefault();
+        selectAll();
+        return;
+      }
 
       // Ctrl+Z: Undo
       if (ctrl && e.key === 'z' && !e.shiftKey) {
@@ -88,6 +96,17 @@ export function useKeyboardShortcuts() {
       if (ctrl && e.key === 'k') {
         e.preventDefault();
         setShowCommandPalette(true);
+        return;
+      }
+
+      // Ctrl+G: Group / Ctrl+Shift+G: Ungroup
+      if (ctrl && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          useEditorStore.getState().ungroupSelected();
+        } else {
+          useEditorStore.getState().groupSelected();
+        }
         return;
       }
 
@@ -163,6 +182,7 @@ export function useKeyboardShortcuts() {
     setShowCommandPalette,
     setShowShortcutHelp,
     selectObject,
+    selectAll,
   ]);
 }
 

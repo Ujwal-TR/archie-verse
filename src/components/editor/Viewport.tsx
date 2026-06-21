@@ -42,8 +42,8 @@ const GROUND_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 function DragSystem() {
   const { camera, raycaster, gl } = useThree();
   const isDragging = useRef(false);
-  const dragObjectId = useRef<string | null>(null);
-  const dragOffset = useRef(new THREE.Vector3());
+  const dragObjectIds = useRef<string[]>([]);
+  const dragOffsets = useRef<Map<string, THREE.Vector3>>(new Map());
   const intersection = useRef(new THREE.Vector3());
 
   const getGroundPoint = useCallback(
@@ -71,23 +71,28 @@ function DragSystem() {
     (e: PointerEvent) => {
       const state = useEditorStore.getState();
       if (!['select', 'move'].includes(state.activeTool)) return;
-      if (!state.selectedObjectId) return;
-
-      const obj = state.objects.find((o) => o.id === state.selectedObjectId);
-      if (!obj || obj.locked) return;
-
       const groundPt = getGroundPoint(e);
       if (!groundPt) return;
 
-      // Calculate offset between click point and object position
-      dragOffset.current.set(
-        obj.position[0] - groundPt.x,
-        0,
-        obj.position[2] - groundPt.z
-      );
+      const selectedObjs = state.objects.filter(o => state.selectedObjectIds.includes(o.id));
+      if (selectedObjs.length === 0 || selectedObjs.every(o => o.locked)) return;
+
+      dragOffsets.current.clear();
+      const draggedIds: string[] = [];
+
+      selectedObjs.forEach(obj => {
+        if (!obj.locked) {
+          draggedIds.push(obj.id);
+          dragOffsets.current.set(obj.id, new THREE.Vector3(
+            obj.position[0] - groundPt.x,
+            0,
+            obj.position[2] - groundPt.z
+          ));
+        }
+      });
 
       isDragging.current = true;
-      dragObjectId.current = obj.id;
+      dragObjectIds.current = draggedIds;
 
       // Disable orbit controls during drag
       gl.domElement.style.cursor = 'grabbing';
@@ -97,27 +102,39 @@ function DragSystem() {
 
   const onPointerMove = useCallback(
     (e: PointerEvent) => {
-      if (!isDragging.current || !dragObjectId.current) return;
+      if (!isDragging.current || dragObjectIds.current.length === 0) return;
 
       const groundPt = getGroundPoint(e);
       if (!groundPt) return;
 
       const state = useEditorStore.getState();
-      const obj = state.objects.find((o) => o.id === dragObjectId.current);
-      if (!obj) return;
+      
+      const updates: Record<string, Partial<any>> = {};
 
-      let newX = groundPt.x + dragOffset.current.x;
-      let newZ = groundPt.z + dragOffset.current.z;
+      dragObjectIds.current.forEach(id => {
+        const obj = state.objects.find((o) => o.id === id);
+        if (!obj) return;
 
-      // Snap to grid if enabled
-      if (state.snapEnabled) {
-        const gs = state.gridSize;
-        newX = Math.round(newX / gs) * gs;
-        newZ = Math.round(newZ / gs) * gs;
-      }
+        const offset = dragOffsets.current.get(id);
+        if (!offset) return;
 
-      state.updateObject(dragObjectId.current, {
-        position: [newX, obj.position[1], newZ],
+        let newX = groundPt.x + offset.x;
+        let newZ = groundPt.z + offset.z;
+
+        if (state.snapEnabled) {
+          const gs = state.gridSize;
+          newX = Math.round(newX / gs) * gs;
+          newZ = Math.round(newZ / gs) * gs;
+        }
+
+        updates[id] = { position: [newX, obj.position[1], newZ] };
+      });
+
+      // Instead of looping updates individually, we can just use updateSelectedObjects
+      // BUT they each have unique positions. So we must call updateObject sequentially, 
+      // or ideally we update them in batch. For now, sequential is fine.
+      Object.entries(updates).forEach(([id, update]) => {
+        state.updateObject(id, update);
       });
     },
     [getGroundPoint]
@@ -126,7 +143,7 @@ function DragSystem() {
   const onPointerUp = useCallback(() => {
     if (isDragging.current) {
       isDragging.current = false;
-      dragObjectId.current = null;
+      dragObjectIds.current = [];
       gl.domElement.style.cursor = 'default';
     }
   }, [gl]);
@@ -179,10 +196,14 @@ function SmartOrbitControls() {
 /* ─── Main 3D scene ─── */
 function SceneContent() {
   const objects = useEditorStore((s) => s.objects);
-  const selectedObjectId = useEditorStore((s) => s.selectedObjectId);
+  const selectedObjectIds = useEditorStore((s) => s.selectedObjectIds);
   const selectObject = useEditorStore((s) => s.selectObject);
   const activeTool = useEditorStore((s) => s.activeTool);
   const showGrid = useEditorStore((s) => s.showGrid);
+  const theme = useEditorStore((s) => s.theme);
+
+  const gridCellColor = theme === 'light' ? '#b0b8c4' : '#3a3a5c';
+  const gridSectionColor = theme === 'light' ? '#8891a0' : '#4a4a7c';
 
   const handleBackgroundClick = useCallback(() => {
     selectObject(null);
@@ -216,10 +237,10 @@ function SceneContent() {
           args={[100, 100]}
           cellSize={0.5}
           cellThickness={0.5}
-          cellColor="#3a3a5c"
+          cellColor={gridCellColor}
           sectionSize={5}
           sectionThickness={1}
-          sectionColor="#4a4a7c"
+          sectionColor={gridSectionColor}
           fadeDistance={50}
           fadeStrength={1}
           followCamera={false}
@@ -252,12 +273,14 @@ function SceneContent() {
         <SceneObject
           key={obj.id}
           obj={obj}
-          isSelected={obj.id === selectedObjectId}
-          onSelect={(id) => {
+          isSelected={selectedObjectIds.includes(obj.id)}
+          onSelect={(id, multi) => {
             if (activeTool === 'delete') {
               useEditorStore.getState().deleteObject(id);
             } else {
-              selectObject(id);
+              // Pass a boolean indicating if Ctrl/Cmd is held (we'll assume the SceneObject can pass it, or we infer it from global state)
+              // Actually, SceneObject's onSelect signature is just (id). Let's update SceneObject to pass event.
+              selectObject(id, multi);
             }
           }}
         />
@@ -285,7 +308,7 @@ function SceneContent() {
 /* ─── 2D Floor Plan view ─── */
 function Scene2D() {
   const objects = useEditorStore((s) => s.objects);
-  const selectedObjectId = useEditorStore((s) => s.selectedObjectId);
+  const selectedObjectIds = useEditorStore((s) => s.selectedObjectIds);
   const selectObject = useEditorStore((s) => s.selectObject);
   const showGrid = useEditorStore((s) => s.showGrid);
 
@@ -332,8 +355,8 @@ function Scene2D() {
         <SceneObject
           key={obj.id}
           obj={obj}
-          isSelected={obj.id === selectedObjectId}
-          onSelect={selectObject}
+          isSelected={selectedObjectIds.includes(obj.id)}
+          onSelect={(id, multi) => selectObject(id, multi)}
         />
       ))}
 
@@ -345,6 +368,9 @@ function Scene2D() {
 /* ─── Viewport wrapper ─── */
 export default function Viewport() {
   const viewMode = useEditorStore((s) => s.viewMode);
+  const theme = useEditorStore((s) => s.theme);
+
+  const canvasBg = theme === 'light' ? '#eef2f6' : '#0d0d14';
 
   return (
     <div className={styles.viewport}>
@@ -363,8 +389,8 @@ export default function Viewport() {
           (window as any).__archieverse_scene = scene;
         }}
       >
-        <color attach="background" args={['#0d0d14']} />
-        <fog attach="fog" args={['#0d0d14', 60, 120]} />
+        <color attach="background" args={[canvasBg]} />
+        <fog attach="fog" args={[canvasBg, 60, 120]} />
         <Suspense fallback={null}>
           {viewMode === '2d' ? <Scene2D /> : <SceneContent />}
         </Suspense>

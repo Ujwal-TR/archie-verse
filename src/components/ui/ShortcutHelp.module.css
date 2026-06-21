@@ -17,7 +17,7 @@
 .modal {
   width: 520px;
   max-height: 80vh;
-  background: rgba(18, 18, 26, 0.98);
+  background: var(--bg-glass);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--border-default);
@@ -120,3 +120,4 @@
   font-size: 11px;
   margin: 0 2px;
 }
+

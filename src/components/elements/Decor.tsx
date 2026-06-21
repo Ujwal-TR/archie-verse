@@ -5,13 +5,13 @@ import { ThreeEvent } from '@react-three/fiber';
 import { Edges } from '@react-three/drei';
 import type { SceneObject } from '@/store/editorStore';
 
-interface DecorProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string) => void; }
+interface DecorProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string, multiSelect?: boolean) => void; }
 
 function DecorComponent({ obj, isSelected, onSelect }: DecorProps) {
   const subType = obj.subType || 'plant';
   const color = obj.material.color || '#4ade80';
   if (!obj.visible) return null;
-  const onClick = (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id); };
+  const onClick = (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey); };
 
   return (
     <group position={obj.position} rotation={obj.rotation.map((r) => (r * Math.PI) / 180) as [number, number, number]} scale={obj.scale}>

@@ -20,7 +20,7 @@ import { Decor } from './Decor';
 interface SceneObjectProps {
   obj: SceneObjectType;
   isSelected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, multiSelect?: boolean) => void;
 }
 
 function SceneObjectComponent({ obj, isSelected, onSelect }: SceneObjectProps) {

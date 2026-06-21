@@ -5,7 +5,7 @@ import { ThreeEvent } from '@react-three/fiber';
 import { Edges } from '@react-three/drei';
 import type { SceneObject } from '@/store/editorStore';
 
-interface BeamProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string) => void; }
+interface BeamProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string, multiSelect?: boolean) => void; }
 
 function BeamComponent({ obj, isSelected, onSelect }: BeamProps) {
   const length = obj.dimensions.length ?? 4;
@@ -24,7 +24,7 @@ function BeamComponent({ obj, isSelected, onSelect }: BeamProps) {
   return (
     <group position={obj.position} rotation={obj.rotation.map((r) => (r * Math.PI) / 180) as [number, number, number]} scale={obj.scale}>
       <mesh geometry={geometry} material={material} position={[0, elevation, 0]} castShadow receiveShadow
-        onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id); }}>
+        onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey); }}>
         {isSelected && <Edges threshold={15} color="#4f9eff" lineWidth={2} />}
       </mesh>
       {isSelected && (

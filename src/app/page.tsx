@@ -106,12 +106,12 @@ export default function HomePage() {
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <div className={styles.navLogo}>
-            <Image src="/logo.png" alt="Archi-Verse Logo" width={32} height={32} className={styles.logoImage} />
-            <span className={styles.logoName}>Archi-Verse</span>
+            <Image src="/logo.png" alt="Archie-Verse Logo" width={32} height={32} className={styles.logoImage} />
+            <span className={styles.logoName}>Archie-Verse</span>
           </div>
           <div className={styles.navLinks}>
             <a href="#features" className={styles.navLink}>Features</a>
-            <a href="https://github.com" className={styles.navLink} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/Ujwal-TR/archie-verse" className={styles.navLink} target="_blank" rel="noopener noreferrer">GitHub</a>
             <Link href="/editor" className={styles.navCta}>
               Open Editor <ArrowRight size={14} />
             </Link>
@@ -225,12 +225,12 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <Image src="/logo.png" alt="Archi-Verse Logo" width={32} height={32} className={styles.logoImage} />
-            <span className={styles.logoName}>Archi-Verse</span>
+            <Image src="/logo.png" alt="Archie-Verse Logo" width={32} height={32} className={styles.logoImage} />
+            <span className={styles.logoName}>Archie-Verse</span>
             <span className={styles.footerTagline}>Browser-based 3D architecture</span>
           </div>
           <div className={styles.footerLinks}>
-            <a href="https://github.com" className={styles.footerLink} target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/Ujwal-TR/archie-verse" className={styles.footerLink} target="_blank" rel="noopener noreferrer">
               <ExternalLink size={16} /> Source
             </a>
           </div>

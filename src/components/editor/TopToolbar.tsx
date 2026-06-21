@@ -24,9 +24,12 @@ import {
   Magnet,
   Save,
   Download,
+  Upload,
   FileJson,
   FileImage,
   Box,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useEditorStore, type ToolType, type ViewMode } from '@/store/editorStore';
 import { useProjectStore } from '@/store/projectStore';
@@ -78,26 +81,36 @@ export default function TopToolbar() {
   const snapEnabled = useEditorStore((s) => s.snapEnabled);
   const toggleGrid = useEditorStore((s) => s.toggleGrid);
   const toggleSnap = useEditorStore((s) => s.toggleSnap);
+  const theme = useEditorStore((s) => s.theme);
+  const toggleTheme = useEditorStore((s) => s.toggleTheme);
   const objects = useEditorStore((s) => s.objects);
+  const loadScene = useEditorStore((s) => s.loadScene);
 
   const saveProject = useProjectStore((s) => s.saveProject);
   const exportProjectJSON = useProjectStore((s) => s.exportProjectJSON);
+  const importProjectJSON = useProjectStore((s) => s.importProjectJSON);
 
   const [exportOpen, setExportOpen] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Close export dropdown on outside click
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    if (!exportOpen) return;
+    function handleOutsideClick(e: MouseEvent) {
       if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
         setExportOpen(false);
       }
     }
-    if (exportOpen) {
-      document.addEventListener('mousedown', handleClick);
-    }
-    return () => document.removeEventListener('mousedown', handleClick);
+    // Use a microtask delay so the current click that opened the menu doesn't immediately close it
+    const id = requestAnimationFrame(() => {
+      document.addEventListener('mousedown', handleOutsideClick);
+    });
+    return () => {
+      cancelAnimationFrame(id);
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
   }, [exportOpen]);
 
   const handleSave = () => {
@@ -113,9 +126,40 @@ export default function TopToolbar() {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'archieverse-project.json';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
     setExportOpen(false);
+  };
+
+  const handleImportClick = () => {
+    setExportOpen(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const importedObjects = importProjectJSON(content);
+        if (importedObjects) {
+          loadScene(importedObjects);
+        } else {
+          alert('Failed to import project. Invalid format.');
+        }
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset the input so the same file can be selected again
+    e.target.value = '';
   };
 
   const handleExportGLTF = async () => {
@@ -124,8 +168,8 @@ export default function TopToolbar() {
       const canvas = document.querySelector('canvas');
       if (!canvas) { alert('No 3D canvas found'); return; }
 
-      // Import GLTF exporter dynamically
-      const { GLTFExporter } = await import('three/examples/jsm/exporters/GLTFExporter.js');
+      // Import GLTF exporter dynamically from three-stdlib
+      const { GLTFExporter } = await import('three-stdlib');
       const renderer = (window as any).__archieverse_renderer as THREE.WebGLRenderer | undefined;
       if (!renderer) { alert('Renderer not ready'); return; }
 
@@ -185,7 +229,9 @@ export default function TopToolbar() {
           const a = document.createElement('a');
           a.href = url;
           a.download = `archieverse-model.${ext}`;
+          document.body.appendChild(a);
           a.click();
+          document.body.removeChild(a);
           URL.revokeObjectURL(url);
         },
         (error) => {
@@ -208,7 +254,9 @@ export default function TopToolbar() {
     const a = document.createElement('a');
     a.href = dataURL;
     a.download = 'archieverse-screenshot.png';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     setExportOpen(false);
   };
 
@@ -229,8 +277,8 @@ export default function TopToolbar() {
     <div className={styles.toolbar}>
       {/* ── Left: Logo ── */}
       <Link href="/" className={styles.logoSection}>
-        <Image src="/logo.png" alt="Archi-Verse Logo" width={28} height={28} className={styles.logoImage} />
-        <span className={styles.logoText}>Archi-Verse</span>
+        <Image src="/logo.png" alt="Archie-Verse Logo" width={28} height={28} className={styles.logoImage} />
+        <span className={styles.logoText}>Archie-Verse</span>
       </Link>
 
       {/* ── Center: Tools ── */}
@@ -301,6 +349,28 @@ export default function TopToolbar() {
 
         <div className={styles.separator} />
 
+        {/* Theme Toggle */}
+        <button
+          className={styles.iconBtn}
+          onClick={toggleTheme}
+          aria-label="Toggle Theme"
+        >
+          {theme === 'dark' ? <Sun /> : <Moon />}
+          <span className={styles.toolBtnLabel}>Theme</span>
+        </button>
+
+        <div className={styles.separator} />
+
+        {/* Import */}
+        <button
+          className={styles.iconBtn}
+          onClick={handleImportClick}
+          aria-label="Import"
+        >
+          <Upload />
+          <span className={styles.toolBtnLabel}>Import</span>
+        </button>
+
         {/* Export dropdown */}
         <div className={styles.dropdownWrap} ref={exportRef}>
           <button
@@ -333,6 +403,15 @@ export default function TopToolbar() {
         >
           <Save /> {saveFlash ? 'Saved!' : 'Save'}
         </button>
+
+        {/* Hidden file input for import */}
+        <input 
+          type="file" 
+          accept=".json" 
+          ref={fileInputRef} 
+          style={{ display: 'none' }} 
+          onChange={handleFileChange} 
+        />
       </div>
     </div>
   );

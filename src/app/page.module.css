@@ -88,6 +88,7 @@
   justify-content: center;
   overflow: hidden;
   padding-top: 80px;
+  padding-bottom: 120px;
 }
 .heroGlow {
   position: absolute;
@@ -138,15 +139,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px;
+  padding: 8px 20px;
   border-radius: 100px;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
-  font-size: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 13px;
   font-weight: 600;
   margin-bottom: 32px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 .heroTitle {
   display: flex;
@@ -156,6 +160,7 @@
 }
 .heroLine1, .heroLine2 {
   display: block;
+  font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.1;
@@ -173,10 +178,12 @@
 }
 .heroSubtitle {
   font-size: clamp(1rem, 1.8vw, 1.15rem);
-  color: #94a3b8;
+  color: #f8fafc;
   line-height: 1.7;
   max-width: 600px;
   margin: 0 auto 40px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 0, 0, 0.5);
+  font-weight: 500;
 }
 .heroCtas {
   display: flex;
@@ -209,18 +216,22 @@
   gap: 8px;
   padding: 14px 28px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: all 0.25s ease;
 }
 .secondaryBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f1f5f9;
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 .heroFade {
   position: absolute;
@@ -281,6 +292,7 @@
 }
 .statValue {
   font-size: 3rem;
+  font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.04em;
   background: linear-gradient(135deg, #f1f5f9 0%, #a5b4fc 100%);
@@ -332,6 +344,7 @@
 }
 .sectionTitle {
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.03em;
   margin-bottom: 14px;
@@ -350,31 +363,71 @@
   gap: 20px;
 }
 .featureCard {
+  position: relative;
   padding: 32px 28px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(10, 10, 15, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: default;
+  overflow: hidden;
   animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--delay, 0ms);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+              0 10px 30px rgba(0, 0, 0, 0.2);
 }
+
+/* Futuristic border glow effect using a pseudo element */
+.featureCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent, #6366f1) 40%, transparent), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
 .featureCard:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(99, 102, 241, 0.15);
-  transform: translateY(-4px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+  background: rgba(15, 15, 22, 0.6);
+  border-color: transparent; /* Let the pseudo-element handle the glowing border */
+  box-shadow: inset 0 0 20px color-mix(in srgb, var(--accent, #6366f1) 10%, transparent),
+              0 20px 50px rgba(0, 0, 0, 0.4),
+              0 0 40px color-mix(in srgb, var(--accent, #6366f1) 15%, transparent);
 }
+
+.featureCard:hover::before {
+  opacity: 1;
+}
+
 .featureIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--accent, #6366f1) 12%, transparent);
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent, #6366f1) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #6366f1) 30%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--accent, #6366f1);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent, #6366f1) 20%, transparent);
+}
+
+.featureCard:hover .featureIcon {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--accent, #6366f1) 40%, transparent);
+  filter: drop-shadow(0 0 8px var(--accent, #6366f1));
 }
 .featureTitle {
   font-size: 16px;
@@ -404,9 +457,43 @@
   margin: 0 auto;
   padding: 80px 40px;
   border-radius: 24px;
-  background: rgba(99, 102, 241, 0.04);
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  background-color: rgba(10, 10, 15, 0.8);
+  /* Futuristic Blueprint Grid Pattern */
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
   overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(99, 102, 241, 0.1);
+}
+
+/* High-tech glowing corner accents */
+.ctaInner::before, .ctaInner::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid transparent;
+  pointer-events: none;
+}
+
+.ctaInner::before {
+  top: 20px;
+  left: 20px;
+  border-top-color: #8b5cf6;
+  border-left-color: #8b5cf6;
+  border-radius: 4px 0 0 0;
+  box-shadow: -4px -4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.ctaInner::after {
+  bottom: 20px;
+  right: 20px;
+  border-bottom-color: #6366f1;
+  border-right-color: #6366f1;
+  border-radius: 0 0 4px 0;
+  box-shadow: 4px 4px 15px rgba(99, 102, 241, 0.4);
 }
 .ctaInner > * {
   opacity: 0;
@@ -438,6 +525,7 @@
 }
 .ctaTitle {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.03em;
   margin-bottom: 14px;
@@ -509,12 +597,34 @@
 .footerLink:hover { color: #a5b4fc; }
 
 /* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .heroLine1, .heroLine2 { font-size: clamp(2rem, 5vw, 4rem); }
+  .title { font-size: clamp(2.5rem, 5vw, 3.5rem); }
+  .features { padding: 80px 20px; }
+  .poster { transform: scale(min(calc(100vw / 1920), calc(100vh / 1080))); }
+}
+
 @media (max-width: 768px) {
-  .navLinks { gap: 12px; }
-  .navLink { display: none; }
-  .stats { gap: 32px; }
-  .statValue { font-size: 2.2rem; }
-  .featureGrid { grid-template-columns: 1fr; }
-  .ctaInner { padding: 48px 24px; }
-  .heroCtas { flex-direction: column; }
+  .navInner { flex-wrap: wrap; padding: 16px; }
+  .navLinks { display: none; } /* Hide links on mobile for cleaner look */
+  .hero { padding-top: 100px; padding-bottom: 80px; }
+  .heroLine1, .heroLine2 { font-size: 2.5rem; }
+  .heroSubtitle { font-size: 1rem; padding: 0 10px; }
+  .heroCtas { flex-direction: column; gap: 12px; width: 100%; }
+  .primaryBtn, .secondaryBtn { width: 100%; justify-content: center; }
+  
+  .stats { flex-direction: column; gap: 40px; }
+  .statItem { width: 100%; }
+  .statValue { font-size: 2.5rem; }
+  
+  .sectionTitle { font-size: 2rem; }
+  .featureGrid { grid-template-columns: 1fr; gap: 16px; }
+  .featureCard { padding: 24px 20px; }
+  
+  .ctaInner { padding: 40px 20px; }
+  .ctaTitle { font-size: 1.8rem; }
+  .ctaButton { width: 100%; justify-content: center; }
+  
+  .footerInner { flex-direction: column; text-align: center; gap: 24px; }
+  .footerLinks { flex-wrap: wrap; justify-content: center; }
 }

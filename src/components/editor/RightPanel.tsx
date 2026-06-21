@@ -10,6 +10,8 @@ import {
   Eye,
   EyeOff,
   Tag,
+  Link,
+  Unlink,
 } from 'lucide-react';
 import { useEditorStore, type SceneObject } from '@/store/editorStore';
 import styles from './RightPanel.module.css';
@@ -34,16 +36,21 @@ const dimensionFields: Record<string, string[]> = {
 
 export default function RightPanel() {
   const objects = useEditorStore((s) => s.objects);
-  const selectedObjectId = useEditorStore((s) => s.selectedObjectId);
+  const selectedObjectIds = useEditorStore((s) => s.selectedObjectIds);
   const updateObject = useEditorStore((s) => s.updateObject);
   const deleteObject = useEditorStore((s) => s.deleteObject);
   const duplicateSelected = useEditorStore((s) => s.duplicateSelected);
+  const updateSelectedObjects = useEditorStore((s) => s.updateSelectedObjects);
+  const deleteSelected = useEditorStore((s) => s.deleteSelected);
+  const groupSelected = useEditorStore((s) => s.groupSelected);
+  const ungroupSelected = useEditorStore((s) => s.ungroupSelected);
 
-  const selectedObject = selectedObjectId
-    ? objects.find((o) => o.id === selectedObjectId)
-    : undefined;
+  const selectedObjects = objects.filter((o) => selectedObjectIds.includes(o.id));
+  const allSameGroup = selectedObjects.length > 0 && selectedObjects.every(o => o.groupId === selectedObjects[0].groupId && o.groupId);
+  const canGroup = selectedObjectIds.length > 1 && !allSameGroup;
+  const canUngroup = selectedObjectIds.length > 0 && allSameGroup;
 
-  if (!selectedObject) {
+  if (selectedObjectIds.length === 0) {
     return (
       <div className={styles.panel}>
         <div className={styles.header}>
@@ -60,49 +67,56 @@ export default function RightPanel() {
     );
   }
 
-  const obj = selectedObject;
+
+  const obj = objects.find((o) => o.id === selectedObjectIds[0])!;
 
   const handleNameChange = (value: string) => {
-    updateObject(obj.id, { name: value });
+    updateSelectedObjects({ name: value });
   };
 
   // Transform helpers
   const handlePosition = (axis: number, value: string) => {
     const v = parseFloat(value);
     if (isNaN(v)) return;
-    const pos: [number, number, number] = [...obj.position];
-    pos[axis] = v;
-    updateObject(obj.id, { position: pos });
+    updateSelectedObjects((o) => {
+      const pos: [number, number, number] = [...o.position];
+      pos[axis] = v;
+      return { position: pos };
+    });
   };
 
   const handleRotation = (axis: number, value: string) => {
     const deg = parseFloat(value);
     if (isNaN(deg)) return;
-    const rot: [number, number, number] = [...obj.rotation];
-    rot[axis] = deg;
-    updateObject(obj.id, { rotation: rot });
+    updateSelectedObjects((o) => {
+      const rot: [number, number, number] = [...o.rotation];
+      rot[axis] = deg;
+      return { rotation: rot };
+    });
   };
 
   const handleScale = (axis: number, value: string) => {
     const v = parseFloat(value);
     if (isNaN(v)) return;
-    const scl: [number, number, number] = [...obj.scale];
-    scl[axis] = v;
-    updateObject(obj.id, { scale: scl });
+    updateSelectedObjects((o) => {
+      const scl: [number, number, number] = [...o.scale];
+      scl[axis] = v;
+      return { scale: scl };
+    });
   };
 
   const handleDimension = (key: string, value: string) => {
     const v = parseFloat(value);
     if (isNaN(v)) return;
-    updateObject(obj.id, {
-      dimensions: { ...obj.dimensions, [key]: v },
-    });
+    updateSelectedObjects((o) => ({
+      dimensions: { ...o.dimensions, [key]: v },
+    }));
   };
 
   const handleMaterial = (key: string, value: string | number | boolean) => {
-    updateObject(obj.id, {
-      material: { ...obj.material, [key]: value },
-    });
+    updateSelectedObjects((o) => ({
+      material: { ...o.material, [key]: value },
+    }));
   };
 
   // Rotation is already stored in degrees
@@ -113,7 +127,9 @@ export default function RightPanel() {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <span className={styles.headerTitle}>Properties</span>
+        <span className={styles.headerTitle}>
+          {selectedObjectIds.length > 1 ? `Properties (${selectedObjectIds.length} Selected)` : 'Properties'}
+        </span>
       </div>
 
       <div className={styles.content}>
@@ -121,13 +137,14 @@ export default function RightPanel() {
         <div className={styles.section}>
           <input
             className={styles.nameInput}
-            value={obj.name}
+            value={selectedObjectIds.length > 1 ? '<Multiple Selected>' : obj.name}
             onChange={(e) => handleNameChange(e.target.value)}
             spellCheck={false}
+            disabled={selectedObjectIds.length > 1}
           />
           <span className={styles.typeBadge}>
-            <Tag size={12} /> {obj.type}
-            {obj.subType ? ` / ${obj.subType}` : ''}
+            <Tag size={12} /> {selectedObjectIds.length > 1 ? 'Multiple Types' : obj.type}
+            {obj.subType && selectedObjectIds.length === 1 ? ` / ${obj.subType}` : ''}
           </span>
         </div>
 
@@ -299,7 +316,7 @@ export default function RightPanel() {
           <div className={styles.actionsRow}>
             <button
               className={`${styles.actionBtn} ${styles.danger}`}
-              onClick={() => deleteObject(obj.id)}
+              onClick={deleteSelected}
             >
               <Trash2 /> Delete
             </button>
@@ -307,17 +324,33 @@ export default function RightPanel() {
               <Copy /> Duplicate
             </button>
           </div>
+          
+          {(canGroup || canUngroup) && (
+            <div className={styles.actionsRow} style={{ marginTop: 6 }}>
+              {canGroup && (
+                <button className={styles.actionBtn} onClick={groupSelected}>
+                  <Link /> Group
+                </button>
+              )}
+              {canUngroup && (
+                <button className={styles.actionBtn} onClick={ungroupSelected}>
+                  <Unlink /> Ungroup
+                </button>
+              )}
+            </div>
+          )}
+
           <div className={styles.actionsRow} style={{ marginTop: 6 }}>
             <button
               className={`${styles.actionBtn} ${obj.locked ? styles.toggled : ''}`}
-              onClick={() => updateObject(obj.id, { locked: !obj.locked })}
+              onClick={() => updateSelectedObjects({ locked: !obj.locked })}
             >
               {obj.locked ? <Lock /> : <Unlock />}
               {obj.locked ? 'Locked' : 'Lock'}
             </button>
             <button
               className={`${styles.actionBtn} ${!obj.visible ? styles.toggled : ''}`}
-              onClick={() => updateObject(obj.id, { visible: !obj.visible })}
+              onClick={() => updateSelectedObjects({ visible: !obj.visible })}
             >
               {obj.visible ? <Eye /> : <EyeOff />}
               {obj.visible ? 'Visible' : 'Hidden'}

@@ -4,11 +4,11 @@ import * as THREE from 'three';
 import { ThreeEvent } from '@react-three/fiber';
 import type { SceneObject } from '@/store/editorStore';
 
-interface LightingProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string) => void; }
+interface LightingProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string, multiSelect?: boolean) => void; }
 
 function LightingComponent({ obj, isSelected, onSelect }: LightingProps) {
   const subType = obj.subType || 'floorLamp';
-  const onClick = (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id); };
+  const onClick = (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey); };
   const warmWhite = '#fff9e0';
 
   if (!obj.visible) return null;

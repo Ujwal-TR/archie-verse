@@ -9,7 +9,7 @@ import type { SceneObject } from '@/store/editorStore';
 interface RoofProps {
   obj: SceneObject;
   isSelected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, multiSelect?: boolean) => void;
 }
 
 const DEFAULTS = {
@@ -127,7 +127,7 @@ function RoofComponent({ obj, isSelected, onSelect }: RoofProps) {
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    onSelect(obj.id);
+    onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey);
   };
 
   if (!obj.visible) return null;

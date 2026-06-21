@@ -1,15 +1,22 @@
 .panel {
   width: 300px;
   height: 100%;
-  background: rgba(18, 18, 26, 0.92);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 1px solid var(--surface-hover);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   user-select: none;
   z-index: 90;
+}
+
+@media (max-width: 1024px) {
+  .panel {
+    width: 100%;
+    border-left: none;
+  }
 }
 
 /* Header */
@@ -18,14 +25,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--surface-hover);
   flex-shrink: 0;
 }
 
 .headerTitle {
   font-size: 12px;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
@@ -45,11 +52,11 @@
   background: transparent;
 }
 .content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-badge);
   border-radius: 4px;
 }
 .content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--slider-track);
 }
 
 /* Empty state */
@@ -60,7 +67,7 @@
   justify-content: center;
   height: 100%;
   gap: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   padding: 32px;
   text-align: center;
 }
@@ -73,18 +80,18 @@
 
 .emptyText {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .emptyHint {
   font-size: 11px;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 /* Section */
 .section {
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--surface-card);
 }
 
 .sectionHeader {
@@ -97,7 +104,7 @@
 .sectionTitle {
   font-size: 11px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
@@ -106,10 +113,10 @@
 .nameInput {
   width: 100%;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface-input);
+  border: 1px solid var(--surface-input-border);
   border-radius: 8px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 500;
   outline: none;
@@ -118,7 +125,7 @@
 
 .nameInput:focus {
   border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface-input-hover);
 }
 
 /* Type badge */
@@ -152,7 +159,7 @@
 .fieldLabel {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   width: 16px;
   text-align: center;
   flex-shrink: 0;
@@ -161,10 +168,10 @@
 .fieldInput {
   flex: 1;
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface-input);
+  border: 1px solid var(--surface-input-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-size: 12px;
   outline: none;
   transition: all 0.2s ease;
@@ -174,7 +181,7 @@
 
 .fieldInput:focus {
   border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface-input-hover);
 }
 
 /* XYZ row - 3 inputs in a row */
@@ -211,10 +218,10 @@
   width: 100%;
   min-width: 0;
   padding: 5px 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-input);
+  border: 1px solid var(--surface-badge);
   border-radius: 5px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-size: 11px;
   outline: none;
   transition: all 0.2s ease;
@@ -230,7 +237,7 @@
 
 .xyzInput:focus {
   border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface-input-hover);
 }
 
 /* Dimension field with label */
@@ -244,7 +251,7 @@
 
 .dimLabel {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   text-transform: capitalize;
   flex-shrink: 0;
 }
@@ -252,10 +259,10 @@
 .dimInput {
   width: 90px;
   padding: 5px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-input);
+  border: 1px solid var(--surface-badge);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-size: 12px;
   outline: none;
   transition: all 0.2s ease;
@@ -265,7 +272,7 @@
 
 .dimInput:focus {
   border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface-input-hover);
 }
 
 /* Color picker */
@@ -280,7 +287,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--surface-input-border);
   cursor: pointer;
   padding: 0;
   overflow: hidden;
@@ -299,10 +306,10 @@
 .colorHex {
   flex: 1;
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-input);
+  border: 1px solid var(--surface-badge);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-size: 12px;
   font-family: monospace;
   outline: none;
@@ -323,7 +330,7 @@
 
 .sliderLabel {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   width: 72px;
   flex-shrink: 0;
 }
@@ -334,7 +341,7 @@
   appearance: none;
   height: 4px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-input-border);
   outline: none;
   transition: background 0.2s ease;
 }
@@ -358,7 +365,7 @@
 
 .sliderValue {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   width: 32px;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -377,10 +384,10 @@
   justify-content: center;
   gap: 5px;
   padding: 7px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-hover);
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #94a3b8;
+  background: var(--surface-card);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;
@@ -390,8 +397,8 @@
 }
 
 .actionBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f1f5f9;
+  background: var(--surface-badge);
+  color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -419,6 +426,8 @@
 
 .sectionLabel {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 6px;
 }
+
+

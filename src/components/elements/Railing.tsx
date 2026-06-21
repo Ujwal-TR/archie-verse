@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { ThreeEvent } from '@react-three/fiber';
 import type { SceneObject } from '@/store/editorStore';
 
-interface RailingProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string) => void; }
+interface RailingProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string, multiSelect?: boolean) => void; }
 
 function RailingComponent({ obj, isSelected, onSelect }: RailingProps) {
   const length = obj.dimensions.length ?? 3;
@@ -32,7 +32,7 @@ function RailingComponent({ obj, isSelected, onSelect }: RailingProps) {
 
   return (
     <group position={obj.position} rotation={obj.rotation.map((r) => (r * Math.PI) / 180) as [number, number, number]} scale={obj.scale}
-      onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id); }}>
+      onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey); }}>
       {/* Top rail */}
       <mesh position={[0, height, 0]} material={material} castShadow>
         <boxGeometry args={[length + 0.05, railRadius * 2, railRadius * 2]} />

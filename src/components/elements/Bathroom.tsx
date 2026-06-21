@@ -5,7 +5,7 @@ import { ThreeEvent } from '@react-three/fiber';
 import { Edges } from '@react-three/drei';
 import type { SceneObject } from '@/store/editorStore';
 
-interface BathroomProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string) => void; }
+interface BathroomProps { obj: SceneObject; isSelected: boolean; onSelect: (id: string, multiSelect?: boolean) => void; }
 
 function BathroomComponent({ obj, isSelected, onSelect }: BathroomProps) {
   const subType = obj.subType || 'bathtub';
@@ -17,7 +17,7 @@ function BathroomComponent({ obj, isSelected, onSelect }: BathroomProps) {
 
   if (!obj.visible) return null;
 
-  const onClick = (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id); };
+  const onClick = (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onSelect(obj.id, e.ctrlKey || e.metaKey || e.shiftKey); };
 
   return (
     <group position={obj.position} rotation={obj.rotation.map((r) => (r * Math.PI) / 180) as [number, number, number]} scale={obj.scale}>

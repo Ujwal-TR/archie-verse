@@ -18,7 +18,7 @@
 .palette {
   width: 560px;
   max-height: 460px;
-  background: rgba(18, 18, 26, 0.98);
+  background: var(--bg-glass);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--border-default);
@@ -120,3 +120,4 @@
   color: var(--text-muted);
   font-size: var(--text-sm);
 }
+

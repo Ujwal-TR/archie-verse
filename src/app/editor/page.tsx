@@ -39,8 +39,8 @@ export default function EditorPage() {
         // Hydrate the store with saved objects
         useEditorStore.setState({
           objects: saved,
-          selectedObjectId: null,
-          history: [{ objects: saved, selectedObjectId: null }],
+          selectedObjectIds: [],
+          history: [{ objects: saved, selectedObjectIds: [] }],
           historyIndex: 0,
           canUndo: false,
           canRedo: false,
