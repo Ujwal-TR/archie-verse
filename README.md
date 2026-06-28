@@ -1,8 +1,10 @@
-# Archie-Verse 🏛️
+# Archie-Verse 
+
+Live demo at: https://archie-verse.vercel.app/
 
 **Archie-Verse** is a professional-grade, browser-based 3D architectural modeling tool. It allows users to design, visualize, and interact with architectural spaces in real-time, entirely within their browser—no downloads, plugins, or costs required.
 
-## ✨ Features
+## Features
 
 - **Parametric Elements**: Easily place and adjust walls, floors, roofs, stairs, furniture, lighting, and plumbing with real-world dimensions (in meters).
 - **60 FPS Real-time Rendering**: Powered by WebGL and React Three Fiber, featuring smooth camera controls, HDRI lighting, and dynamic contact shadows.
@@ -12,7 +14,7 @@
 - **Session Persistence**: Your project automatically saves to your local browser storage—never lose your work on accidental refreshes.
 - **Zero Install**: Jump straight into the editor. Cross-platform compatibility for desktops, tablets, and laptops.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
@@ -21,7 +23,7 @@
 - **Styling**: Vanilla CSS Modules (Cinematic & Glassmorphic UI)
 - **Icons**: Lucide React
 
-## 🚀 Getting Started
+## Getting Started
 
 First, clone the repository and install the dependencies:
 
@@ -37,7 +39,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The cinematic landing page will welcome you, and you can jump right into the `/editor` to start building!
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -51,7 +53,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 | **Del** | Delete Selected Element |
 | **Esc** | Deselect / Cancel |
 
-## 🎨 Architecture & Design
+## Architecture & Design
 Archie-Verse embraces a minimalist, premium dark-mode aesthetic with smooth scroll-reveal animations, glowing interactive elements, and an overarching "glassmorphism" look for all editor panels. 
 
 ---
