@@ -23,76 +23,7 @@
   display: inline-block;
 }
 
-/* ── Nav ── */
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: #fdfaf6;
-  border-bottom: 3px solid #1a1a1a;
-  box-shadow: 0 4px 0 #1a1a1a;
-}
-
-.navInner {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navLogo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  color: #1a1a1a;
-  font-weight: 900;
-  font-size: 20px;
-  letter-spacing: -0.05em;
-}
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.navLink {
-  font-size: 15px;
-  color: #1a1a1a;
-  text-decoration: none;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border-bottom: 2px solid transparent;
-  transition: border-color 0.2s;
-}
-
-.navLink:hover {
-  border-bottom: 2px solid #1a1a1a;
-}
-
-.navCta {
-  padding: 8px 16px;
-  background: #ffdd00;
-  color: #1a1a1a;
-  font-weight: 800;
-  text-decoration: none;
-  border: 3px solid #1a1a1a;
-  box-shadow: 3px 3px 0 #1a1a1a;
-  border-radius: 4px;
-  transition: all 0.1s;
-}
-
-.navCta:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 #1a1a1a;
-}
+/* ── Nav extracted to NavBar.module.css ── */
 
 /* ── Hero ── */
 .hero {
@@ -261,6 +192,11 @@
   transition: all 0.1s;
 }
 
+.primaryBtn:hover {
+  background: #f04e1c;
+  color: #fff;
+}
+
 .primaryBtn:active {
   transform: translate(5px, 5px);
   box-shadow: 0 0 0 #1a1a1a;
@@ -315,9 +251,19 @@
   font-size: 28px;
 }
 
+.sectionDivider {
+  width: 100%;
+  max-width: 120px;
+  height: 2px;
+  background: #1a1a1a;
+  margin: 60px auto 20px;
+  opacity: 0.2;
+}
+
 /* ── Features ── */
 .features {
   padding: 20px 24px 120px;
+  scroll-margin-top: 100px;
 }
 
 .featuresInner {
@@ -403,6 +349,11 @@
   text-decoration: none;
   font-size: 14px;
   transition: all 0.1s;
+}
+
+.secondaryBtn:hover {
+  background: #fdfaf6;
+  color: #1a1a1a;
 }
 
 .secondaryBtn:active {

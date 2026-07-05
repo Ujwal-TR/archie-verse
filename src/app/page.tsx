@@ -51,24 +51,6 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
-      {/* Hand-drawn Nav */}
-      <nav className={styles.nav}>
-        <div className={styles.navInner}>
-          <Link href="/" className={styles.navLogo}>
-            <span className={styles.logoIcon}>✏️</span>
-            <span className={styles.logoName}>ArchieVerse</span>
-          </Link>
-          <div className={styles.navLinks}>
-            <a href="#features" className={styles.navLink}>What it does</a>
-            <a href="https://github.com/Ujwal-TR/archie-verse" className={styles.navLink} target="_blank" rel="noopener noreferrer">
-              <Code size={16} /> Code
-            </a>
-            <Link href="/editor" className={styles.navCta}>
-              Open Editor
-            </Link>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero section */}
       <section className={styles.hero}>
@@ -112,6 +94,8 @@ export default function HomePage() {
         </p>
         <span className={styles.quoteAuthor}>— Me, when I started building this</span>
       </section>
+
+      <div className={styles.sectionDivider}></div>
 
       {/* Features */}
       <section id="features" className={styles.features}>

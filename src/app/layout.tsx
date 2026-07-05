@@ -40,6 +40,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { NavBar } from '@/components/landing/NavBar';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -50,6 +52,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <DynamicFavicon />
         <ThemeProvider />
+        <NavBar />
         {children}
       </body>
     </html>
