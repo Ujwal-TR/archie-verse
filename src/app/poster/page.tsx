@@ -73,7 +73,7 @@ export default function PosterPage() {
 
             <div className={styles.rightColumn}>
               <div className={styles.sceneContainer}>
-                <HeroScene />
+                <HeroScene scrollProgress={1} />
               </div>
             </div>
           </main>

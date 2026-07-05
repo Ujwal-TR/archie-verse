@@ -1,23 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ArrowRight,
-  Box,
+  Ruler,
   Zap,
   Download,
   Layers,
-  Sparkles,
   Globe,
   MonitorSmartphone,
   ExternalLink,
   ChevronDown,
-  Cpu,
-  Eye,
-  Users,
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -26,8 +21,32 @@ const HeroScene = dynamic(() => import('@/components/landing/HeroScene'), {
   loading: () => <div className={styles.heroScenePlaceholder} />,
 });
 
-/* Count-up animation hook */
-function useCountUp(target: number, duration: number = 2000) {
+/* ── Scroll progress tracker ── */
+function useScrollProgress(ref: React.RefObject<HTMLElement | null>) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    function onScroll() {
+      const rect = el!.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      const total = rect.height + viewH;
+      const scrolled = viewH - rect.top;
+      setProgress(Math.max(0, Math.min(1, scrolled / total)));
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [ref]);
+
+  return progress;
+}
+
+/* ── Count-up on scroll ── */
+function useCountUp(target: number, duration = 1800) {
   const [value, setValue] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const started = useRef(false);
@@ -39,14 +58,14 @@ function useCountUp(target: number, duration: number = 2000) {
       ([entry]) => {
         if (entry.isIntersecting && !started.current) {
           started.current = true;
-          const start = performance.now();
-          const animate = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const ease = 1 - Math.pow(1 - progress, 3);
+          const t0 = performance.now();
+          const tick = (now: number) => {
+            const p = Math.min((now - t0) / duration, 1);
+            const ease = 1 - Math.pow(1 - p, 3);
             setValue(Math.floor(target * ease));
-            if (progress < 1) requestAnimationFrame(animate);
+            if (p < 1) requestAnimationFrame(tick);
           };
-          requestAnimationFrame(animate);
+          requestAnimationFrame(tick);
         }
       },
       { threshold: 0.3 }
@@ -58,7 +77,7 @@ function useCountUp(target: number, duration: number = 2000) {
   return { value, ref };
 }
 
-/* Scroll reveal hook */
+/* ── Reveal on scroll ── */
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -67,8 +86,10 @@ function useReveal() {
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -78,37 +99,62 @@ function useReveal() {
 }
 
 export default function HomePage() {
+  const heroRef = useRef<HTMLElement>(null);
+  const scrollProgress = useScrollProgress(heroRef);
+
   const features = [
-    { icon: Box, title: 'Parametric Elements', desc: 'Walls, floors, roofs, stairs, furniture, lighting — all with real-world dimensions in meters.', color: '#6366f1' },
-    { icon: Zap, title: '60 FPS Real-time', desc: 'WebGL-powered rendering with HDRI lighting, contact shadows, and smooth camera controls.', color: '#f59e0b' },
-    { icon: Download, title: 'Export Anywhere', desc: 'Download as GLTF, OBJ, JSON, or PNG screenshot. Import into Blender, Unity, or Unreal.', color: '#22c55e' },
-    { icon: Layers, title: 'Multi-View Modes', desc: '3D perspective, 2D floor plan, and walkthrough mode for complete spatial understanding.', color: '#ec4899' },
-    { icon: Globe, title: 'Zero Install', desc: 'Runs entirely in your browser. No plugins, no downloads, no account required.', color: '#3b82f6' },
-    { icon: MonitorSmartphone, title: 'Cross-Platform', desc: 'Works on any device with a modern browser — desktop, tablet, or laptop.', color: '#8b5cf6' },
+    {
+      icon: Ruler,
+      title: 'Real Dimensions',
+      desc: 'Every wall, floor, and staircase uses real-world meters. Your designs translate directly to physical space.',
+    },
+    {
+      icon: Zap,
+      title: 'Instant Feedback',
+      desc: 'Changes render at 60fps. No waiting, no loading bars. Move a wall and see it happen.',
+    },
+    {
+      icon: Download,
+      title: 'Take It Anywhere',
+      desc: 'Export as GLTF for Blender, JSON for backup, or grab a screenshot. Your work, your formats.',
+    },
+    {
+      icon: Layers,
+      title: 'Multiple Views',
+      desc: '3D perspective, top-down floor plan, or walk through your design. Switch freely.',
+    },
+    {
+      icon: Globe,
+      title: 'Nothing to Install',
+      desc: 'Open a browser tab and start designing. No downloads, no accounts, no friction.',
+    },
+    {
+      icon: MonitorSmartphone,
+      title: 'Any Screen',
+      desc: 'Laptop, desktop, tablet — the editor adapts. Design wherever you are.',
+    },
   ];
 
   const stats = [
-    { label: 'Elements', target: 30, suffix: '+' },
+    { label: 'Building Elements', target: 30, suffix: '+' },
     { label: 'Export Formats', target: 4, suffix: '' },
-    { label: 'FPS Target', target: 60, suffix: '' },
-    { label: 'Cost', target: 0, suffix: '$', prefix: '' },
+    { label: 'Frames Per Second', target: 60, suffix: '' },
+    { label: 'Price Tag', target: 0, suffix: '', prefix: '$' },
   ];
 
-  const marqueeItems = ['Three.js', 'React', 'WebGL', 'GPU-Accelerated', 'Zero Install', '60 FPS', 'TypeScript', 'GLTF Export', 'Real-time Shadows', 'HDRI Lighting'];
-
-  const heroReveal = useReveal();
   const featReveal = useReveal();
   const ctaReveal = useReveal();
+  const statsReveal = useReveal();
 
   return (
     <div className={styles.page}>
-      {/* ── Nav ── */}
+      {/* Nav */}
       <nav className={styles.nav}>
         <div className={styles.navInner}>
-          <div className={styles.navLogo}>
-            <Image src="/logo.png" alt="Archie-Verse Logo" width={32} height={32} className={styles.logoImage} />
+          <Link href="/" className={styles.navLogo}>
+            <span className={styles.logoMark}>AV</span>
             <span className={styles.logoName}>Archie-Verse</span>
-          </div>
+          </Link>
           <div className={styles.navLinks}>
             <a href="#features" className={styles.navLink}>Features</a>
             <a href="https://github.com/Ujwal-TR/archie-verse" className={styles.navLink} target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -119,59 +165,51 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ── Hero ── */}
-      <section className={styles.hero}>
-        <div className={styles.heroGlow} />
+      {/* Hero — scroll-linked 3D scene */}
+      <section ref={heroRef} className={styles.hero}>
         <div className={styles.heroScene}>
-          <HeroScene />
+          <HeroScene scrollProgress={scrollProgress} />
         </div>
-        <div
-          ref={heroReveal.ref}
-          className={`${styles.heroContent} ${heroReveal.visible ? styles.revealed : ''}`}
-        >
-          <div className={styles.heroBadge}>
-            <Sparkles size={14} />
-            <span>Free &amp; Open Source</span>
-          </div>
+
+        <div className={styles.heroContent}>
+          <p className={styles.heroEyebrow}>Free &amp; open source</p>
           <h1 className={styles.heroTitle}>
-            <span className={styles.heroLine1}>Design Architecture</span>
-            <span className={styles.heroLine2}>In Your Browser</span>
+            Architecture starts<br />
+            <span className={styles.heroAccent}>with an idea.</span>
           </h1>
           <p className={styles.heroSubtitle}>
-            Professional-grade 3D architectural modeling — no downloads, no plugins, no cost. 
-            Build walls, floors, roofs, furniture, and more with real-time WebGL rendering.
+            ArchieVerse is a browser-based 3D editor for designing buildings. 
+            No installs, no cost — just open a tab and build.
           </p>
           <div className={styles.heroCtas}>
             <Link href="/editor" className={styles.primaryBtn}>
-              Start Building <ArrowRight size={18} />
+              Start designing <ArrowRight size={18} />
             </Link>
             <a href="#features" className={styles.secondaryBtn}>
-              See Features <ChevronDown size={18} />
+              Learn more <ChevronDown size={18} />
             </a>
           </div>
         </div>
-        <div className={styles.heroFade} />
-      </section>
 
-      {/* ── Marquee ── */}
-      <section className={styles.marqueeSection}>
-        <div className={styles.marqueeTrack}>
-          {[...marqueeItems, ...marqueeItems].map((item, i) => (
-            <span key={i} className={styles.marqueeItem}>
-              <Cpu size={14} /> {item}
-            </span>
-          ))}
+        <div className={styles.scrollHint}>
+          <span>Scroll to explore</span>
+          <ChevronDown size={16} />
         </div>
       </section>
 
-      {/* ── Stats ── */}
-      <section className={styles.stats}>
+      {/* Stats */}
+      <section
+        ref={statsReveal.ref}
+        className={`${styles.stats} ${statsReveal.visible ? styles.revealed : ''}`}
+      >
         {stats.map((stat) => {
           const counter = useCountUp(stat.target);
           return (
             <div key={stat.label} ref={counter.ref} className={styles.statItem}>
               <span className={styles.statValue}>
-                {stat.prefix}{counter.value}{stat.suffix}
+                {stat.prefix}
+                {counter.value}
+                {stat.suffix}
               </span>
               <span className={styles.statLabel}>{stat.label}</span>
             </div>
@@ -179,14 +217,16 @@ export default function HomePage() {
         })}
       </section>
 
-      {/* ── Features ── */}
+      {/* Features */}
       <section id="features" className={styles.features}>
-        <div ref={featReveal.ref} className={`${styles.featuresInner} ${featReveal.visible ? styles.revealed : ''}`}>
+        <div
+          ref={featReveal.ref}
+          className={`${styles.featuresInner} ${featReveal.visible ? styles.revealed : ''}`}
+        >
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionBadge}>Features</span>
-            <h2 className={styles.sectionTitle}>Everything you need to design</h2>
+            <h2 className={styles.sectionTitle}>Built for the way you work</h2>
             <p className={styles.sectionSubtitle}>
-              From structural elements to interior furniture, ArchieVerse gives you a complete toolkit.
+              No learning curve. Drag elements, tweak properties, export when ready.
             </p>
           </div>
           <div className={styles.featureGrid}>
@@ -194,10 +234,10 @@ export default function HomePage() {
               <div
                 key={feat.title}
                 className={styles.featureCard}
-                style={{ '--delay': `${i * 80}ms`, '--accent': feat.color } as React.CSSProperties}
+                style={{ '--delay': `${i * 60}ms` } as React.CSSProperties}
               >
                 <div className={styles.featureIcon}>
-                  <feat.icon size={24} />
+                  <feat.icon size={22} strokeWidth={1.5} />
                 </div>
                 <h3 className={styles.featureTitle}>{feat.title}</h3>
                 <p className={styles.featureDesc}>{feat.desc}</p>
@@ -207,13 +247,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <section className={styles.cta}>
-        <div ref={ctaReveal.ref} className={`${styles.ctaInner} ${ctaReveal.visible ? styles.revealed : ''}`}>
-          <div className={styles.ctaGlow} />
-          <h2 className={styles.ctaTitle}>Ready to build something amazing?</h2>
+        <div
+          ref={ctaReveal.ref}
+          className={`${styles.ctaInner} ${ctaReveal.visible ? styles.revealed : ''}`}
+        >
+          <h2 className={styles.ctaTitle}>Your next building starts here.</h2>
           <p className={styles.ctaSubtitle}>
-            No signup required. Jump straight into the editor and start designing.
+            Open the editor and place your first wall. No sign-up needed.
           </p>
           <Link href="/editor" className={styles.ctaButton}>
             Launch Editor <ArrowRight size={20} />
@@ -221,19 +263,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <Image src="/logo.png" alt="Archie-Verse Logo" width={32} height={32} className={styles.logoImage} />
-            <span className={styles.logoName}>Archie-Verse</span>
-            <span className={styles.footerTagline}>Browser-based 3D architecture</span>
+            <span className={styles.logoMark}>AV</span>
+            <span className={styles.footerName}>Archie-Verse</span>
           </div>
-          <div className={styles.footerLinks}>
-            <a href="https://github.com/Ujwal-TR/archie-verse" className={styles.footerLink} target="_blank" rel="noopener noreferrer">
-              <ExternalLink size={16} /> Source
-            </a>
-          </div>
+          <a
+            href="https://github.com/Ujwal-TR/archie-verse"
+            className={styles.footerLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink size={14} /> Source on GitHub
+          </a>
         </div>
       </footer>
     </div>

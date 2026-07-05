@@ -1,150 +1,328 @@
 'use client';
 
 import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Edges, Float } from '@react-three/drei';
+import { Edges } from '@react-three/drei';
 
-/* Wireframe building that slowly rotates */
-function WireframeBuilding() {
-  const groupRef = useRef<THREE.Group>(null);
+// ---------------------------------------------------------------------------
+// Utility: remap a scroll sub-range [start, end] → [0, 1]
+// ---------------------------------------------------------------------------
+function scrollPhase(scroll: number, start: number, end: number): number {
+  return THREE.MathUtils.clamp((scroll - start) / (end - start), 0, 1);
+}
 
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.15;
-    }
-  });
+// ---------------------------------------------------------------------------
+// Ground plane — always visible, fades in right at the start
+// ---------------------------------------------------------------------------
+function Ground({ scroll }: { scroll: number }) {
+  const opacity = THREE.MathUtils.clamp(scroll * 5, 0.4, 1); // quick fade-in
+  return (
+    <mesh rotation-x={-Math.PI / 2} position={[0, -0.01, 0]} receiveShadow>
+      <planeGeometry args={[12, 12]} />
+      <meshStandardMaterial
+        color="#c4956a"
+        transparent
+        opacity={opacity}
+        roughness={0.9}
+        metalness={0.05}
+      />
+    </mesh>
+  );
+}
 
-  const edgeColor = '#6366f1';
-  const edgeColor2 = '#818cf8';
+// ---------------------------------------------------------------------------
+// Walls — rise from ground during scroll 0 → 0.3
+// ---------------------------------------------------------------------------
+function Walls({ scroll }: { scroll: number }) {
+  const t = scrollPhase(scroll, 0, 0.3);
+  const scaleY = THREE.MathUtils.lerp(0, 1, t);
+  const wallHeight = 2.4;
+  const wallThickness = 0.12;
+  const depth = 3;
+  const width = 4;
+
+  const wallMaterial = useMemo(
+    () => (
+      <meshStandardMaterial
+        color="#e8ddd0"
+        roughness={0.85}
+        metalness={0.02}
+      />
+    ),
+    [],
+  );
+
+  const edgeColor = '#b8a898';
 
   return (
-    <group ref={groupRef} position={[0, -0.5, 0]}>
-      {/* Main building body */}
-      <mesh position={[0, 1.5, 0]}>
-        <boxGeometry args={[3, 3, 2]} />
-        <meshStandardMaterial color="#0f0f1a" transparent opacity={0.15} />
-        <Edges color={edgeColor} lineWidth={1.5} />
-      </mesh>
-
-      {/* Roof */}
-      <mesh position={[0, 3.3, 0]}>
-        <boxGeometry args={[3.4, 0.15, 2.4]} />
-        <meshStandardMaterial color="#0f0f1a" transparent opacity={0.1} />
-        <Edges color={edgeColor2} lineWidth={1} />
-      </mesh>
-
-      {/* Floor */}
-      <mesh position={[0, -0.05, 0]}>
-        <boxGeometry args={[4, 0.1, 3]} />
-        <meshStandardMaterial color="#0f0f1a" transparent opacity={0.1} />
+    <group>
+      {/* Back wall */}
+      <mesh
+        position={[0, (wallHeight * scaleY) / 2, -depth / 2]}
+        scale={[1, scaleY, 1]}
+      >
+        <boxGeometry args={[width, wallHeight, wallThickness]} />
+        {wallMaterial}
         <Edges color={edgeColor} lineWidth={1} />
       </mesh>
 
-      {/* Windows left */}
-      {[-0.8, 0.8].map((y) =>
-        [-0.5, 0.5].map((z) => (
-          <mesh key={`wl-${y}-${z}`} position={[-1.51, y + 1.5, z]}>
-            <planeGeometry args={[0.6, 0.5]} />
-            <meshStandardMaterial color="#6366f1" emissive="#6366f1" emissiveIntensity={0.3} transparent opacity={0.15} side={THREE.DoubleSide} />
-          </mesh>
-        ))
-      )}
-
-      {/* Windows right */}
-      {[-0.8, 0.8].map((y) =>
-        [-0.5, 0.5].map((z) => (
-          <mesh key={`wr-${y}-${z}`} position={[1.51, y + 1.5, z]}>
-            <planeGeometry args={[0.6, 0.5]} />
-            <meshStandardMaterial color="#8b5cf6" emissive="#8b5cf6" emissiveIntensity={0.3} transparent opacity={0.15} side={THREE.DoubleSide} />
-          </mesh>
-        ))
-      )}
-
-      {/* Door */}
-      <mesh position={[0, 0.55, 1.01]}>
-        <boxGeometry args={[0.6, 1.1, 0.02]} />
-        <meshStandardMaterial color="#0f0f1a" transparent opacity={0.3} />
-        <Edges color={edgeColor2} lineWidth={1} />
+      {/* Left wall */}
+      <mesh
+        position={[-width / 2, (wallHeight * scaleY) / 2, 0]}
+        scale={[1, scaleY, 1]}
+      >
+        <boxGeometry args={[wallThickness, wallHeight, depth]} />
+        {wallMaterial}
+        <Edges color={edgeColor} lineWidth={1} />
       </mesh>
 
-      {/* Side extension */}
-      <mesh position={[2.5, 0.75, 0]}>
-        <boxGeometry args={[2, 1.5, 1.5]} />
-        <meshStandardMaterial color="#0f0f1a" transparent opacity={0.1} />
-        <Edges color={edgeColor2} lineWidth={1} />
+      {/* Right wall */}
+      <mesh
+        position={[width / 2, (wallHeight * scaleY) / 2, 0]}
+        scale={[1, scaleY, 1]}
+      >
+        <boxGeometry args={[wallThickness, wallHeight, depth]} />
+        {wallMaterial}
+        <Edges color={edgeColor} lineWidth={1} />
       </mesh>
 
-      {/* Extension roof */}
-      <mesh position={[2.5, 1.55, 0]}>
-        <boxGeometry args={[2.3, 0.1, 1.8]} />
-        <meshStandardMaterial color="#0f0f1a" transparent opacity={0.08} />
+      {/* Front wall (with gap for door — split into two halves) */}
+      {/* Front-left */}
+      <mesh
+        position={[-(width / 4 + 0.35), (wallHeight * scaleY) / 2, depth / 2]}
+        scale={[1, scaleY, 1]}
+      >
+        <boxGeometry args={[width / 2 - 0.7, wallHeight, wallThickness]} />
+        {wallMaterial}
+        <Edges color={edgeColor} lineWidth={1} />
+      </mesh>
+      {/* Front-right */}
+      <mesh
+        position={[(width / 4 + 0.35), (wallHeight * scaleY) / 2, depth / 2]}
+        scale={[1, scaleY, 1]}
+      >
+        <boxGeometry args={[width / 2 - 0.7, wallHeight, wallThickness]} />
+        {wallMaterial}
+        <Edges color={edgeColor} lineWidth={1} />
+      </mesh>
+      {/* Front wall — lintel above door */}
+      <mesh
+        position={[0, wallHeight * scaleY - 0.3 * scaleY, depth / 2]}
+        scale={[1, scaleY, 1]}
+      >
+        <boxGeometry args={[1.4, 0.6, wallThickness]} />
+        {wallMaterial}
         <Edges color={edgeColor} lineWidth={1} />
       </mesh>
     </group>
   );
 }
 
-/* Floating particles */
-function Particles() {
-  const count = 60;
-  const meshRef = useRef<THREE.InstancedMesh>(null);
+// ---------------------------------------------------------------------------
+// Roof — slides in from above during scroll 0.3 → 0.5
+// ---------------------------------------------------------------------------
+function Roof({ scroll }: { scroll: number }) {
+  const t = scrollPhase(scroll, 0.3, 0.5);
+  const yOffset = THREE.MathUtils.lerp(4, 0, t);
+  const opacity = THREE.MathUtils.lerp(0, 1, t);
 
-  const particles = useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < count; i++) {
-      arr.push({
-        x: (Math.random() - 0.5) * 16,
-        y: (Math.random() - 0.5) * 10,
-        z: (Math.random() - 0.5) * 10,
-        speed: 0.1 + Math.random() * 0.3,
-        scale: 0.02 + Math.random() * 0.04,
-      });
-    }
-    return arr;
-  }, []);
-
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-
-  useFrame((_, delta) => {
-    if (!meshRef.current) return;
-    for (let i = 0; i < count; i++) {
-      const p = particles[i];
-      p.y += p.speed * delta;
-      if (p.y > 5) p.y = -5;
-      dummy.position.set(p.x, p.y, p.z);
-      dummy.scale.setScalar(p.scale);
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    }
-    meshRef.current.instanceMatrix.needsUpdate = true;
-  });
+  if (t <= 0) return null;
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-      <sphereGeometry args={[1, 6, 6]} />
-      <meshBasicMaterial color="#6366f1" transparent opacity={0.4} />
-    </instancedMesh>
+    <mesh position={[0, 2.4 + 0.08 + yOffset, 0]}>
+      <boxGeometry args={[4.6, 0.16, 3.6]} />
+      <meshStandardMaterial
+        color="#5a524c"
+        roughness={0.8}
+        metalness={0.1}
+        transparent
+        opacity={opacity}
+      />
+      <Edges color="#4a423c" lineWidth={1.2} />
+    </mesh>
   );
 }
 
-export default function HeroScene() {
+// ---------------------------------------------------------------------------
+// Windows & Door — fade in during scroll 0.5 → 0.7
+// ---------------------------------------------------------------------------
+function WindowsAndDoor({ scroll }: { scroll: number }) {
+  const t = scrollPhase(scroll, 0.5, 0.7);
+  const opacity = THREE.MathUtils.lerp(0, 0.45, t);
+  const doorOpacity = THREE.MathUtils.lerp(0, 0.85, t);
+
+  if (t <= 0) return null;
+
+  const windowPositions: [number, number, number][] = [
+    // Left wall windows
+    [-2.0, 1.5, -0.6],
+    [-2.0, 1.5, 0.6],
+    // Right wall windows
+    [2.0, 1.5, -0.6],
+    [2.0, 1.5, 0.6],
+    // Back wall windows
+    [-1.0, 1.5, -1.5],
+    [1.0, 1.5, -1.5],
+  ];
+
+  return (
+    <group>
+      {/* Windows on side walls */}
+      {windowPositions.slice(0, 4).map((pos, i) => (
+        <mesh key={`sw-${i}`} position={pos} rotation-y={Math.PI / 2}>
+          <planeGeometry args={[0.7, 0.8]} />
+          <meshStandardMaterial
+            color="#a8c8e0"
+            transparent
+            opacity={opacity}
+            roughness={0.15}
+            metalness={0.1}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
+      {/* Windows on back wall */}
+      {windowPositions.slice(4).map((pos, i) => (
+        <mesh key={`bw-${i}`} position={pos}>
+          <planeGeometry args={[0.7, 0.8]} />
+          <meshStandardMaterial
+            color="#a8c8e0"
+            transparent
+            opacity={opacity}
+            roughness={0.15}
+            metalness={0.1}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
+      {/* Door */}
+      <mesh position={[0, 0.9, 1.51]}>
+        <planeGeometry args={[1.0, 1.8]} />
+        <meshStandardMaterial
+          color="#8b6f4e"
+          transparent
+          opacity={doorOpacity}
+          roughness={0.75}
+          metalness={0.05}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* Door frame edge (subtle) */}
+      <mesh position={[0, 0.9, 1.52]}>
+        <boxGeometry args={[1.1, 1.9, 0.02]} />
+        <meshStandardMaterial
+          color="#7a5f40"
+          transparent
+          opacity={doorOpacity * 0.5}
+          roughness={0.9}
+        />
+        <Edges color="#6a5030" lineWidth={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Camera rig — orbits during scroll 0.7 → 1.0, otherwise static
+// ---------------------------------------------------------------------------
+function CameraRig({ scroll }: { scroll: number }) {
+  const { camera } = useThree();
+  const angleRef = useRef(Math.atan2(8, 8)); // starting angle ≈ π/4
+
+  useFrame(() => {
+    const radius = 11;
+    const baseAngle = Math.PI / 4; // 45 degrees — matches initial [8, 5, 8]
+
+    if (scroll <= 0.7) {
+      // Static phase: smoothly interpolate to the base position
+      const targetX = radius * Math.sin(baseAngle);
+      const targetZ = radius * Math.cos(baseAngle);
+      camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.05);
+      camera.position.y = THREE.MathUtils.lerp(camera.position.y, 5, 0.05);
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
+      angleRef.current = baseAngle;
+    } else {
+      // Orbit phase: scroll 0.7 → 1.0 maps to ~120 degrees of rotation
+      const orbitT = scrollPhase(scroll, 0.7, 1.0);
+      const orbitAngle = baseAngle + orbitT * (Math.PI * 0.67);
+      angleRef.current = THREE.MathUtils.lerp(angleRef.current, orbitAngle, 0.06);
+
+      const targetX = radius * Math.sin(angleRef.current);
+      const targetZ = radius * Math.cos(angleRef.current);
+      const targetY = THREE.MathUtils.lerp(5, 3.5, orbitT); // lower slightly
+      camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.06);
+      camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.06);
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.06);
+    }
+
+    camera.lookAt(0, 1.0, 0);
+  });
+
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Inner scene — receives scroll as a prop
+// ---------------------------------------------------------------------------
+function ArchitecturalScene({ scroll }: { scroll: number }) {
+  return (
+    <>
+      <color attach="background" args={['transparent']} />
+
+      {/* Lighting */}
+      <ambientLight intensity={0.5} color="#fff5eb" />
+      <directionalLight
+        position={[6, 10, 4]}
+        intensity={0.9}
+        color="#ffd699"
+        castShadow
+      />
+      <directionalLight
+        position={[-4, 6, -3]}
+        intensity={0.25}
+        color="#ffe0b2"
+      />
+
+      {/* Ground */}
+      <Ground scroll={scroll} />
+
+      {/* Structure */}
+      <Walls scroll={scroll} />
+      <Roof scroll={scroll} />
+      <WindowsAndDoor scroll={scroll} />
+
+      {/* Camera */}
+      <CameraRig scroll={scroll} />
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Exported wrapper
+// ---------------------------------------------------------------------------
+export default function HeroScene({
+  scrollProgress,
+}: {
+  scrollProgress: number;
+}) {
   return (
     <Canvas
-      camera={{ position: [6, 4, 6], fov: 40 }}
+      camera={{ position: [8, 5, 8], fov: 40 }}
       dpr={[1, 1.5]}
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       gl={{ antialias: true, alpha: true }}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+      }}
     >
-      <color attach="background" args={['transparent']} />
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 8, 5]} intensity={0.6} color="#a5b4fc" />
-      <directionalLight position={[-3, 5, -3]} intensity={0.3} color="#c084fc" />
-
-      <Float speed={1} rotationIntensity={0} floatIntensity={0.3}>
-        <WireframeBuilding />
-      </Float>
-      <Particles />
+      <ArchitecturalScene scroll={scrollProgress} />
     </Canvas>
   );
 }

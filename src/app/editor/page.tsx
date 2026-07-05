@@ -26,21 +26,36 @@ export default function EditorPage() {
   const saveProject = useProjectStore((s) => s.saveProject);
   const hasRestored = useRef(false);
 
-  // ── Restore from sessionStorage on first mount ──
+  // ── Restore saved scene on first mount ──
   useEffect(() => {
     if (hasRestored.current) return;
     hasRestored.current = true;
 
     try {
+      // Try sessionStorage first (survives same-tab refresh)
       const raw = sessionStorage.getItem(SESSION_KEY);
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (Array.isArray(saved) && saved.length > 0) {
-        // Hydrate the store with saved objects
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (Array.isArray(saved) && saved.length > 0) {
+          useEditorStore.setState({
+            objects: saved,
+            selectedObjectIds: [],
+            history: [{ objects: saved, selectedObjectIds: [] }],
+            historyIndex: 0,
+            canUndo: false,
+            canRedo: false,
+          });
+          return;
+        }
+      }
+
+      // Fall back to localStorage (survives tab close / browser restart)
+      const projectData = useProjectStore.getState().loadProject();
+      if (projectData && projectData.objects.length > 0) {
         useEditorStore.setState({
-          objects: saved,
+          objects: projectData.objects,
           selectedObjectIds: [],
-          history: [{ objects: saved, selectedObjectIds: [] }],
+          history: [{ objects: projectData.objects, selectedObjectIds: [] }],
           historyIndex: 0,
           canUndo: false,
           canRedo: false,
