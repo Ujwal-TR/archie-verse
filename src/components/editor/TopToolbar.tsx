@@ -277,8 +277,8 @@ export default function TopToolbar() {
     <div className={styles.toolbar}>
       {/* ── Left: Logo ── */}
       <Link href="/" className={styles.logoSection}>
-        <Image src="/logo.png" alt="Archie-Verse Logo" width={28} height={28} className={styles.logoImage} />
-        <span className={styles.logoText}>Archie-Verse</span>
+        <span className={styles.logoIcon}>✏️</span>
+        <span className={styles.logoText}>ArchieVerse</span>
       </Link>
 
       {/* ── Center: Tools ── */}
